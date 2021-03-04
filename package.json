@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/josue173/VentasEnLinea/issues"
   },
-  "homepage": "https://github.com/josue173/VentasEnLinea#readme"
+  "homepage": "https://github.com/josue173/VentasEnLinea#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mogoose": "0.0.1-security",
+    "nodemon": "^2.0.7"
+  }
 }
