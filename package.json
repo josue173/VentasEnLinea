@@ -1,0 +1,19 @@
+{
+  "name": "ventasenlinea",
+  "version": "1.0.0",
+  "description": "Proyecto final del primer bimestre",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/josue173/VentasEnLinea.git"
+  },
+  "author": "Antony Josué Toribio Pérez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/josue173/VentasEnLinea/issues"
+  },
+  "homepage": "https://github.com/josue173/VentasEnLinea#readme"
+}
