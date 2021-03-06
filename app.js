@@ -4,6 +4,6 @@ const express = require('express');
 
 const ventas = express();
 
-ventas.use('/ventas');
+//ventas.use('/ventas');
 
 module.exports = ventas;
