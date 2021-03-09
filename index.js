@@ -31,5 +31,6 @@ mongoose.connect('mongodb://localhost:27017/ventasonline', {useNewUrlParser: tru
                 })
             }
         })
+        console.log('El servidor está corriendo en el puerto 3000');
     })
-})
+}).catch(err =>console.log(err))

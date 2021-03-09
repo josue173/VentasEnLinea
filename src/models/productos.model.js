@@ -4,8 +4,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 var productosScheman = ({
-    nombre: String,
-    descipcion: String,
+    name: String,
     cantidad: Number
 })
 
