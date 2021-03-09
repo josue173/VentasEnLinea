@@ -3,8 +3,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-var productosScheman = ({
-    name: String,
+var productosScheman = Schema({
+    nombre: String,
     cantidad: Number
 })
 

@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var admiSchema = Schema({
-    user: String,
-    password: String
+    usuario: String,
+    contrasena: String
 })
 
 module.exports = mongoose.model('administradores', admiSchema)

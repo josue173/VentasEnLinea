@@ -6,8 +6,8 @@ const key = 'VentasOnLine';
 
 exports.createToken = function (usuario) {
     var payload = {
-        id: usuario._id,
-        nombre: usuario._id,
+        sub: usuario._id,
+        nombre: usuario.nombre,
         iat: moment().unix(),
         exp: moment().day(30, 'days').unix()
     }

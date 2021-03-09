@@ -10,9 +10,9 @@ mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/ventasonline', {useNewUrlParser: true, useUnifiedTopology: true}).then(()=>{
     console.log('Conexion exitosa a la base de datos')
     ventas.listen(3000, function(){
-        adminModel.user = 'Admin';
+        adminModel.usuario = 'Ramon';
         Admin.find({ $or: [
-                {user: adminModel.user}
+                {usuario: adminModel.usuario}
             ]
         }).exec((err, adminEncontrado)=>{
             if (err) console.log('Error interno');
@@ -20,8 +20,9 @@ mongoose.connect('mongodb://localhost:27017/ventasonline', {useNewUrlParser: tru
                 console.log('El administrador ya existe');
             } else {
                 bcrypt.hash('123456', null, null, (err, encpitacion)=>{
-                    adminModel.password = encpitacion;
+                    adminModel.contrasena = encpitacion;
                     adminModel.save((err, adminRegistrado)=>{
+                        if (err) console.log('Error interno');
                         if (adminRegistrado){
                             console.log(adminRegistrado);
                         } else {
