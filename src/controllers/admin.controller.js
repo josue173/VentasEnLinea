@@ -102,8 +102,10 @@ function buscarProductos(req,res) {
 }
 
 function buscarProductosPorNombre(req, res) {
-    var adminID = req.params.adminID;
     var params = req.body;
+    if (params.usuario && parmas.contrasena) {
+        
+    }
     if (params.nombre) {
         Admin.findOne({usuario: params.usuario}, (err, adminEncontrado)=>{
             if(err) return res.status(500).send({mensaje: 'Error interno al buscar administrador'});
@@ -123,6 +125,10 @@ function buscarProductosPorNombre(req, res) {
     } else {
         return res.status(500).send({mensaje: 'Llene los campo necesarios'});
     }
+}
+
+function editarProductos(req, res) {
+    var params = req.body;
 }
 
 module.exports = {
