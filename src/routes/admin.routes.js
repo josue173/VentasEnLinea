@@ -8,5 +8,7 @@ const ventas = express.Router();
 
 ventas.post('/obtenerAdministrador', adminController.obtenerAdministrador);
 ventas.post('/agregarProductos/:adminID', verification.ensureAuth, adminController.agregarProductos);
+ventas.post('/buscarProductos/:adminID', verification.ensureAuth, adminController.buscarProductos);
+ventas.post('/buscarProductosPorNomobre/:adminID', verification.ensureAuth, adminController.buscarProductosPorNombre);
 
 module.exports = ventas;
