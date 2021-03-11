@@ -1,139 +1,146 @@
-'use strict'
+"use strict";
 
-const Admin = require('../models/admin.model');
-const bcrypt = require('bcrypt-nodejs');
-const jwt = require('../services/jwt');
-const Productos = require('../models/productos.model');
+const Usuarios = require("../models/usuarios.model");
+const bcrypt = require("bcrypt-nodejs");
+const jwt = require("../services/jwt");
+const Productos = require("../models/productos.model");
+var productosModel = new Productos();
 
-function obtenerAdministrador(req, res) {
-    var params = req.body;
-    Admin.findOne({usuario: params.usuario}, (err, adminEncontrado)=>{
-        if (err) return res.status(500).send({mensaje: 'Error interno'})
-        if(adminEncontrado) {
-            bcrypt.compare(params.contrasena, adminEncontrado.contrasena, (err, passCorrect)=>{
-                if(err) return res.status(500).send({mensaje: 'Error en la password'});
-                if(passCorrect) {
-                    if(params.obtenerToken) {
-                        return res.status(500).send({Token: jwt.createToken(adminEncontrado)});
-                    } else {
-                        adminEncontrado.contrasena = undefined;
-                        return res.status(500).send({adminEncontrado});
-                    }
-                } else {
-                    return res.status(500).send({mensaje: 'Password incorrecta'})
-                }
-            })
-        } else {
-            return res.status(500).send({mensaje: 'El administrador no existe'})
-        }
-    })
-}
-
-function agregarProductos(req,res) {
-    var productosModel = new Productos();
-    var adminID = req.params.adminID;
-    var params = req.body;
-    if(adminID != req.usuario.sub){
-        return res.status(500).send({mensaje: 'No estas logeado'})
-    } else if (params.nombre && params.cantidad){
-        Admin.findOne({usuario: params.usuario}, (err, adminEncontrado)=>{
-            if(err) return res.status(500).send({mensaje: 'Error interno al buscar administrador'});
-            if(!adminEncontrado) return res.status(500).send({mensaje: 'No se encontraron coincidencias'});
-            if(adminEncontrado){
-                bcrypt.compare(params.contrasena, adminEncontrado.contrasena, (err, passCorrect)=>{
-                    if(err) return res.status(500).send({mensaje: 'Error interno al comparar la password'});
-                    if(passCorrect) {
-                        Productos.findOne({nombre: params.nombre}, (err, productoEncontrado)=>{
-                            if(err) return res.status(500).send({mensaje: 'Error interno'});
-                            if (productoEncontrado) {
-                                return res.status(500).send({mensaje: 'El producto ya existe'})
-                            } else {    
-                                productosModel.nombre = params.nombre;
-                                productosModel.cantidad = params.cantidad;
-                                productosModel.save((err, productosAgregados)=>{
-                                    if(err) return res.status(500).send({mensaje: 'Error interno al guardar'});
-                                    if(productosAgregados){
-                                    return res.status(200).send({productosAgregados});
-                                }
-                              })
-
-                            }
-                        })                        
-                    } else {
-                        return res.status(500).send({mensaje: 'Password incorrecta'});
-                    }
-                })
-            }
-        })
-    } else {
-        return res.status(500).send({mensaje: 'No contiene los datos necesarios para agregar el producto'})
-    }
-}
-
-function buscarProductos(req,res) {
-    var adminID = req.params.adminID;
-    var params = req.body;
-    if (adminID != req.usuario.sub) {
-        return res.status(500).send({mensaje: 'ID invalida'})
-    } else {
-        if (params.usuario && params.contrasena) {
-            Admin.findOne({usuario: params.usuario}, (err, adminEncontrado)=>{
-                if (err) return res.status(500).send({mensaje: 'Error interno al buscar administrador'});
-                if (!adminEncontrado) return res.status(500).send({mensaje: 'No hay coincidencias con el nombre del administrador'});
-                if (adminEncontrado){
-                    bcrypt.compare(params.contrasena, adminEncontrado.contrasena, (err, passCorrect)=>{
-                        if(err) return res.status(500).send({mensaje: 'Error interno al verificar contrasena'});
-                        if (passCorrect) {
-                            Productos.find((err, productosEncontrados)=>{
-                                if (err) return res.status(500).send({mensaje: 'Error interno al buscar productos'})
-                                if(!productosEncontrados) return res.status({mensaje: 'No hay productos en stock'});
-                                return res.status(200).send({productosEncontrados});
-                            })    
-                        } else {
-                            return res.status(500).send({mensaje: 'Contrasena invalida'});
-                        }
-                    })
-                } 
-            })    
-        } else {
-            return res.status(500).send({mensaje: 'Llene los campos necesarios'})
-        }
-    }
-}
-
-function buscarProductosPorNombre(req, res) {
-    var params = req.body;
-    if (params.usuario && parmas.contrasena) {
-        
-    }
-    if (params.nombre) {
-        Admin.findOne({usuario: params.usuario}, (err, adminEncontrado)=>{
-            if(err) return res.status(500).send({mensaje: 'Error interno al buscar administrador'});
-            if (adminEncontrado) {
-                Productos.find({nombre: params.nombre}, (err, productoEncontrado)=>{
-                    if(err) return res.status(500).send({mensaje: 'Error inerno al buscar producto'});
-                    if(productoEncontrado){
-                        return res.status(500).send({productoEncontrado});
-                    } else {
-                        return res.status(500).send({mensaje: 'No hay coincidencias'});
-                    }
-                })
+function loginUsuarios(req, res) {
+  var params = req.body;
+  Usuarios.findOne({ usuario: params.usuario }, (err, usuarioEncontrados) => {
+    if (err) return res.status(500).send({ mensaje: "Error interno" });
+    if (usuarioEncontrados) {
+      bcrypt.compare(
+        params.contrasena,
+        usuarioEncontrados.contrasena,
+        (err, passCorrect) => {
+          if (err)
+            return res.status(500).send({ mensaje: "Error en la password" });
+          if (passCorrect) {
+            if (params.obtenerToken) {
+              return res
+                .status(500)
+                .send({ Token: jwt.createToken(usuarioEncontrados) });
             } else {
-                return res.status(500).send({mensaje: 'El usuario no pertenece a los administradores'});
+              usuarioEncontrados.contrasena = undefined;
+              return res.status(500).send({ usuarioEncontrados });
             }
-        })
+          } else {
+            return res.status(500).send({ mensaje: "Password incorrecta" });
+          }
+        }
+      );
     } else {
-        return res.status(500).send({mensaje: 'Llene los campo necesarios'});
+      return res.status(500).send({ mensaje: "El Usuariosistrador no existe" });
     }
+  });
+}
+
+function agregarProductos(req, res) {
+  if (req.usuario.rol === "Administrador") {
+    var params = req.body;
+    if (params.nombre && params.cantidad) {
+      Productos.findOne(
+        { nombre: params.nombre },
+        (err, productoEncontrado) => {
+          if (err) return res.status(500).send({ mensaje: "Error interno" });
+          if (productoEncontrado) {
+            return res.status(500).send({ mensaje: "El producto ya existe" });
+          } else {
+            productosModel.nombre = params.nombre;
+            productosModel.cantidad = params.cantidad;
+            productosModel.save((err, productosAgregados) => {
+              if (err)
+                return res
+                  .status(500)
+                  .send({ mensaje: "Error interno al guardar" });
+              if (productosAgregados) {
+                return res.status(200).send({ productosAgregados });
+              }
+            });
+          }
+        }
+      );
+    }
+  } else {
+    return res.status(500).send({ mensaje: "Usted no es administrador" });
+  }
+}
+
+function buscarProductos(req, res) {
+  var params = req.body;
+  if (req.usuario.rol === "Administrador") {
+    Usuarios.findOne({ usuario: params.usuario }, (err, usuarioEncontrados) => {
+      if (err)
+        return res
+          .status(500)
+          .send({ mensaje: "Error interno al buscar Usuariosistrador" });
+      if (!usuarioEncontrados)
+        return res.status(500).send({
+          mensaje: "No hay coincidencias con el nombre del Usuariosistrador",
+        });
+      if (usuarioEncontrados) {
+        bcrypt.compare(
+          params.contrasena,
+          usuarioEncontrados.contrasena,
+          (err, passCorrect) => {
+            if (err)
+              return res
+                .status(500)
+                .send({ mensaje: "Error interno al verificar contrasena" });
+            if (passCorrect) {
+              Productos.find((err, productosEncontrados) => {
+                if (err)
+                  return res
+                    .status(500)
+                    .send({ mensaje: "Error interno al buscar productos" });
+                if (!productosEncontrados)
+                  return res.status({
+                    mensaje: "No hay productos en stock",
+                  });
+                return res.status(200).send({ productosEncontrados });
+              });
+            } else {
+              return res.status(500).send({ mensaje: "Contrasena invalida" });
+            }
+          }
+        );
+      }
+    });
+  } else {
+    return res.status(500).send({ mensaje: "Usted no es administrador" });
+  }
 }
 
 function editarProductos(req, res) {
-    var params = req.body;
+  var productoID = req.params.productoID;
+  var params = req.body;
+  if ((req.usuario.rol = "Administrador")) {
+    Productos.findByIdAndUpdate(
+      { _id: productoID },
+      { nombre: params.producto, cantidad: params.cantidad },
+      { new: true },
+      (err, productoEditado) => {
+        if (err)
+          return res
+            .status(500)
+            .send({ mensaje: "Error interno al actualizar productos" });
+        if (productoEditado) {
+          return res.status(200).send({ productoEditado });
+        } else {
+          return res.status(500).send;
+        }
+      }
+    );
+  } else {
+    return res.status(500).send({ mensaje: "El producto no existe" });
+  }
 }
 
 module.exports = {
-    obtenerAdministrador,
-    agregarProductos,
-    buscarProductos,
-    buscarProductosPorNombre
-}
+  loginUsuarios,
+  agregarProductos,
+  buscarProductos,
+  editarProductos,
+};

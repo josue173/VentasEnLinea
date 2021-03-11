@@ -3,16 +3,17 @@
 const mongoose = require('mongoose');
 const ventas = require('./app');
 const bcrypt = require('bcrypt-nodejs');
-var Admin = require('./src/models/admin.model');
-var adminModel = new Admin();
+var Usuarios = require('./src/models/usuarios.model');
+var usuariosModel = new Usuarios();
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/ventasonline', {useNewUrlParser: true, useUnifiedTopology: true}).then(()=>{
     console.log('Conexion exitosa a la base de datos')
     ventas.listen(3000, function(){
-        adminModel.usuario = 'Ramon';
-        Admin.find({ $or: [
-                {usuario: adminModel.usuario}
+        usuariosModel.usuario = 'Admin';
+        usuariosModel.rol = 'Administrador';
+        Usuarios.find({ $or: [
+                {usuario: usuariosModel.usuario}
             ]
         }).exec((err, adminEncontrado)=>{
             if (err) console.log('Error interno');
@@ -20,8 +21,8 @@ mongoose.connect('mongodb://localhost:27017/ventasonline', {useNewUrlParser: tru
                 console.log('El administrador ya existe');
             } else {
                 bcrypt.hash('123456', null, null, (err, encpitacion)=>{
-                    adminModel.contrasena = encpitacion;
-                    adminModel.save((err, adminRegistrado)=>{
+                    usuariosModel.contrasena = encpitacion;
+                    usuariosModel.save((err, adminRegistrado)=>{
                         if (err) console.log('Error interno');
                         if (adminRegistrado){
                             console.log(adminRegistrado);

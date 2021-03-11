@@ -6,9 +6,10 @@ const verification = require('../middlewares/verification');
 
 const ventas = express.Router();
 
-ventas.post('/obtenerAdministrador', adminController.obtenerAdministrador);
-ventas.post('/agregarProductos/:adminID', verification.ensureAuth, adminController.agregarProductos);
-ventas.post('/buscarProductos/:adminID', verification.ensureAuth, adminController.buscarProductos);
-ventas.post('/buscarProductosPorNomobre/', verification.ensureAuth, adminController.buscarProductosPorNombre);
+ventas.post('/obtenerAdministrador', adminController.loginUsuarios);
+ventas.post('/agregarProductos', verification.ensureAuth, adminController.agregarProductos);
+ventas.post('/buscarProductos', verification.ensureAuth, adminController.buscarProductos);
+//ventas.post('/buscarProductosPorNomobre', verification.ensureAuth, adminController.buscarProductosPorNombre);
+//ventas.put('/editarProductos/:productoID', adminController.editarProductos);
 
 module.exports = ventas;
