@@ -8,7 +8,7 @@ const ventas = express.Router();
 
 ventas.post("/obtenerAdministrador", adminController.loginUsuarios);
 ventas.post(
-  "/agregarProductos",
+  "/agregarProductos/:categoriaID",
   verification.ensureAuth,
   adminController.agregarProductos
 );
@@ -48,9 +48,9 @@ ventas.delete(
   adminController.eliminarCategorias
 );
 ventas.post(
-  "/agregarUsuario",
+  "/registroUsuario",
   verification.ensureAuth,
-  adminController.agregarUsuarios
+  adminController.registroUsuarios
 );
 ventas.put(
   "/editarUsuario/:usuarioID",

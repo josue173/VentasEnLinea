@@ -44,12 +44,14 @@ function loginUsuarios(req, res) {
 
 function agregarProductos(req, res) {
   let params = req.body;
+  let categoriaID = req.params.categoriaID;
   if (req.usuario.rol === "Administrador") {
     if (params.nombre && params.cantidad) {
       productosModel.nombre = params.nombre;
       productosModel.cantidad = params.cantidad;
+      productosModel.categoria = categoriaID;
       productosModel.save((err, productosAgregados) => {
-        /*if (err)
+        if (err)
           return res
             .status(500)
             .send({ mensaje: "Error interno en agregar productos" });
@@ -57,9 +59,9 @@ function agregarProductos(req, res) {
           return res
             .status(500)
             .send({ mensaje: "Error al agregar productos" });
-        } else {*/
-        return res.status(200).send({ productosAgregados });
-        //}
+        } else {
+          return res.status(200).send({ productosAgregados });
+        }
       });
     } else {
       return res
@@ -159,6 +161,7 @@ function eliminarProductos(req, res) {
 function agregarCategorias(req, res) {
   let params = req.body;
   if (req.usuario.rol === "Administrador") {
+    categoriasModel.nombre = params.nombre;
     Categorias.find({ $or: [{ nombre: params.nombre }] }).exec(
       (err, categoriaEncontrada) => {
         if (err) console.log("Error interno");
@@ -271,7 +274,7 @@ function eliminarCategorias(req, res) {
 
 //GESTION DE USUARIOS
 
-function agregarUsuarios(req, res) {
+function registroUsuarios(req, res) {
   let params = req.body;
   if (req.usuario.rol !== "Administrador") {
     return res.status(500).send({ mensaje: "Usted no es administrador" });
@@ -316,24 +319,36 @@ function editarUsuario(req, res) {
   let params = req.body;
   delete params.contrasena;
   if (req.usuario.rol === "Administrador") {
-    Usuarios.findByIdAndUpdate(
-      { _id: usuarioID },
-      params,
-      { new: true },
-      (err, usuarioEditado) => {
-        if (err)
-          return res
-            .status(500)
-            .send({ mensaje: "Error interno en buscar la categoria" });
-        if (!usuarioEditado) {
-          return res
-            .status(500)
-            .send({ mensaje: "No se ha editado la categoria" });
-        } else {
-          return res.status(200).send({ usuarioEditado });
-        }
+    Usuarios.findById(usuarioID, (err, usuarioVerificar) => {
+      if (err) return res.status(500).send({ mensaje: "Error interno" });
+      if (!usuarioVerificar)
+        return res.status({ mensaje: "Error al verficcar usuairio a editar" });
+      if (usuarioVerificar.rol === "Cliente") {
+        Usuarios.findByIdAndUpdate(
+          { _id: usuarioID },
+          params,
+          { new: true },
+          (err, usuarioEditado) => {
+            if (err)
+              return res
+                .status(500)
+                .send({ mensaje: "Error interno en buscar la categoria" });
+            if (!usuarioEditado) {
+              return res
+                .status(500)
+                .send({ mensaje: "No se ha editado la categoria" });
+            } else {
+              return res.status(200).send({ usuarioEditado });
+            }
+          }
+        );
+      } else {
+        return res.status(500).send({
+          mensaje:
+            "El que intenta editar es administrador, por que no podra hacerlo",
+        });
       }
-    );
+    });
   } else {
     return res.status(500).send({ mensaje: "Usted no es administrador" });
   }
@@ -342,13 +357,27 @@ function editarUsuario(req, res) {
 function eliminarUsuarios(req, res) {
   var usuarioID = req.params.usuarioID;
   if (req.usuario.rol === "Administrador") {
-    Usuarios.findByIdAndDelete(usuarioID, (err, usuarioEliminado) => {
+    Usuarios.findById(usuarioID, (err, usuarioVerificar) => {
       if (err) return res.status(500).send({ mensaje: "Error interno" });
-      if (!usuarioEliminado)
+      if (!usuarioVerificar)
         return res
           .status(500)
-          .send({ mensaje: "No se ha podido eliminar el usuario" });
-      return res.status(200).send({ usuarioEliminado });
+          .send({ mensaje: "Error al verificar usuario a eliminar" });
+      if (usuarioVerificar.rol === "Administrador") {
+        Usuarios.findByIdAndDelete(usuarioID, (err, usuarioEliminado) => {
+          if (err) return res.status(500).send({ mensaje: "Error interno" });
+          if (!usuarioEliminado)
+            return res
+              .status(500)
+              .send({ mensaje: "No se ha podido eliminar el usuario" });
+          return res.status(200).send({ usuarioEliminado });
+        });
+      } else {
+        return res.status(500).send({
+          mensaje:
+            "El usuario que desea eliminar es administrador, por lo que no podra hacerlo",
+        });
+      }
     });
   } else {
     return res.status(500).send({ mensaje: "Usted no es administrador" });
@@ -356,6 +385,8 @@ function eliminarUsuarios(req, res) {
 }
 
 //GESTION DE FACTURAS
+
+function facturas(params) {}
 
 module.exports = {
   loginUsuarios,
@@ -367,7 +398,7 @@ module.exports = {
   buscarCategorias,
   editarCategoria,
   eliminarCategorias,
-  agregarUsuarios,
+  registroUsuarios,
   editarUsuario,
   eliminarUsuarios,
 };
