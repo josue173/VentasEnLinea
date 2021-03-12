@@ -7,4 +7,4 @@ var categoriasSchema = Schema({
   nombre: String,
 });
 
-module.exports = mongoose.Schema("categorias", categoriasSchema);
+module.exports = mongoose.model("categorias", categoriasSchema);

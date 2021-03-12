@@ -15,7 +15,7 @@ mongoose
   .then(() => {
     console.log("Conexion exitosa a la base de datos");
     ventas.listen(3000, function () {
-      usuariosModel.usuario = "Admin3";
+      usuariosModel.usuario = "Admin";
       usuariosModel.rol = "Administrador";
       Usuarios.find({ $or: [{ usuario: usuariosModel.usuario }] }).exec(
         (err, adminEncontrado) => {

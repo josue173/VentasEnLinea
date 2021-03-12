@@ -32,4 +32,34 @@ ventas.post(
   verification.ensureAuth,
   adminController.agregarCategorias
 );
+ventas.get(
+  "/buscarCategorias",
+  verification.ensureAuth,
+  adminController.buscarCategorias
+);
+ventas.put(
+  "/editarCategoria/:categoriaID",
+  verification.ensureAuth,
+  adminController.editarCategoria
+);
+ventas.delete(
+  "/eliminarCategoria/:categoriaID",
+  verification.ensureAuth,
+  adminController.eliminarCategorias
+);
+ventas.post(
+  "/agregarUsuario",
+  verification.ensureAuth,
+  adminController.agregarUsuarios
+);
+ventas.put(
+  "/editarUsuario/:usuarioID",
+  verification.ensureAuth,
+  adminController.editarUsuario
+);
+ventas.delete(
+  "/eliminarUsuario/:usuarioID",
+  verification.ensureAuth,
+  adminController.eliminarUsuarios
+);
 module.exports = ventas;
