@@ -7,7 +7,7 @@ const Productos = require("../models/productos.model");
 var productosModel = new Productos();
 
 function loginUsuarios(req, res) {
-  var params = req.body;
+  let params = req.body;
   Usuarios.findOne({ usuario: params.usuario }, (err, usuarioEncontrados) => {
     if (err) return res.status(500).send({ mensaje: "Error interno" });
     if (usuarioEncontrados) {
@@ -37,9 +37,11 @@ function loginUsuarios(req, res) {
   });
 }
 
+//FUNCIONES DE PRODUCTOS
+
 function agregarProductos(req, res) {
+  let params = req.body;
   if (req.usuario.rol === "Administrador") {
-    var params = req.body;
     if (params.nombre && params.cantidad) {
       Productos.findOne(
         { nombre: params.nombre },
@@ -69,40 +71,45 @@ function agregarProductos(req, res) {
 }
 
 function buscarProductos(req, res) {
-  var params = req.body;
   if (req.usuario.rol === "Administrador") {
-    Usuarios.findOne({ usuario: params.usuario }, (err, usuarioEncontrados) => {
+    Productos.find((err, productosEncontrados) => {
       if (err)
         return res
           .status(500)
-          .send({ mensaje: "Error interno al buscar Usuariosistrador" });
-      if (!usuarioEncontrados)
-        return res.status(500).send({
-          mensaje: "No hay coincidencias con el nombre del Usuariosistrador",
+          .send({ mensaje: "Error interno al buscar productos" });
+      if (!productosEncontrados)
+        return res.status({
+          mensaje: "No hay productos en stock",
         });
-      if (usuarioEncontrados) {
-        bcrypt.compare(
-          params.contrasena,
-          usuarioEncontrados.contrasena,
-          (err, passCorrect) => {
+      return res.status(200).send({ productosEncontrados });
+    });
+  } else {
+    return res.status(500).send({ mensaje: "Usted no es administrador" });
+  }
+}
+
+function editarProductos(req, res) {
+  let productoID = req.params.productoID;
+  let params = req.body;
+  if ((req.usuario.rol = "Administrador")) {
+    Productos.find({ nombre: params.nombre }, (err, productoEncontrado) => {
+      if (err) return res.status(500).send({ mensaje: "Error interno" });
+      if (productoEncontrado) {
+        return res.status(500).send({ mensaje: "El producto ya existe" });
+      } else {
+        Productos.findByIdAndUpdate(
+          { _id: productoID },
+          params,
+          { new: true },
+          (err, productoEditado) => {
             if (err)
               return res
                 .status(500)
-                .send({ mensaje: "Error interno al verificar contrasena" });
-            if (passCorrect) {
-              Productos.find((err, productosEncontrados) => {
-                if (err)
-                  return res
-                    .status(500)
-                    .send({ mensaje: "Error interno al buscar productos" });
-                if (!productosEncontrados)
-                  return res.status({
-                    mensaje: "No hay productos en stock",
-                  });
-                return res.status(200).send({ productosEncontrados });
-              });
+                .send({ mensaje: "Error interno al actualizar productos" });
+            if (productoEditado) {
+              return res.status(200).send({ productoEditado });
             } else {
-              return res.status(500).send({ mensaje: "Contrasena invalida" });
+              return res.status(500).send({ mensaje: "El producto no existe" });
             }
           }
         );
@@ -113,28 +120,22 @@ function buscarProductos(req, res) {
   }
 }
 
-function editarProductos(req, res) {
-  var productoID = req.params.productoID;
-  var params = req.body;
-  if ((req.usuario.rol = "Administrador")) {
-    Productos.findByIdAndUpdate(
-      { _id: productoID },
-      { nombre: params.producto, cantidad: params.cantidad },
-      { new: true },
-      (err, productoEditado) => {
-        if (err)
-          return res
-            .status(500)
-            .send({ mensaje: "Error interno al actualizar productos" });
-        if (productoEditado) {
-          return res.status(200).send({ productoEditado });
-        } else {
-          return res.status(500).send;
-        }
-      }
-    );
+function eliminarProductos(req, res) {
+  let productoID = req.params.productoID;
+  if (req.usuario.rol === "Administrador") {
+    Productos.findByIdAndDelete(productoID, (err, productoEliminado) => {
+      if (err)
+        return res
+          .status(200)
+          .send({ mensaje: "Error interno en eliminar el producto" });
+      if (!productoEliminado)
+        return res
+          .status(500)
+          .send({ mensaje: "El producto que quiere eliminar no existe" });
+      return res.status(200).send({ productoEliminado });
+    });
   } else {
-    return res.status(500).send({ mensaje: "El producto no existe" });
+    return res.status(500).send({ mensaje: "Usted no es administrador" });
   }
 }
 
@@ -143,4 +144,5 @@ module.exports = {
   agregarProductos,
   buscarProductos,
   editarProductos,
+  eliminarProductos,
 };
