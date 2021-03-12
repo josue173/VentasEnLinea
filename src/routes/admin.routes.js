@@ -12,7 +12,7 @@ ventas.post(
   verification.ensureAuth,
   adminController.agregarProductos
 );
-ventas.post(
+ventas.get(
   "/buscarProductos",
   verification.ensureAuth,
   adminController.buscarProductos
@@ -27,5 +27,9 @@ ventas.delete(
   verification.ensureAuth,
   adminController.eliminarProductos
 );
-
+ventas.post(
+  "/agregarCategoria",
+  verification.ensureAuth,
+  adminController.agregarCategorias
+);
 module.exports = ventas;

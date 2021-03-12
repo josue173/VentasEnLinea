@@ -1,10 +1,12 @@
 "use strict";
 
 const Usuarios = require("../models/usuarios.model");
+const Categorias = require("../models/productos.model");
 const bcrypt = require("bcrypt-nodejs");
 const jwt = require("../services/jwt");
 const Productos = require("../models/productos.model");
 var productosModel = new Productos();
+var categoriasModel = new Categorias();
 
 function loginUsuarios(req, res) {
   let params = req.body;
@@ -92,7 +94,7 @@ function editarProductos(req, res) {
   let productoID = req.params.productoID;
   let params = req.body;
   if ((req.usuario.rol = "Administrador")) {
-    Productos.find({ nombre: params.nombre }, (err, productoEncontrado) => {
+    Productos.findOne({ nombre: params.nombre }, (err, productoEncontrado) => {
       if (err) return res.status(500).send({ mensaje: "Error interno" });
       if (productoEncontrado) {
         return res.status(500).send({ mensaje: "El producto ya existe" });
@@ -139,10 +141,46 @@ function eliminarProductos(req, res) {
   }
 }
 
+//FUNCIONES DE CATEGORIAS
+
+function agregarCategorias(req, res) {
+  let params = req.body;
+  if (req.usuario.rol === "Administrador") {
+    if (params.nombre) {
+      Categorias.findOne(
+        { nombre: params.nombre },
+        (err, categoriaEncontrada) => {
+          if (err) return res.status(500).send({ mensaje: "Error interno" });
+          if (categoriaEncontrada) {
+            return res.status(500).send({ mensaje: "La categoria ya existe" });
+          } else {
+            categoriasModel.nombre = params.nombre;
+            categoriasModel.save((err, categoriaAgregada) => {
+              if (err)
+                return res
+                  .status(500)
+                  .send({ mensaje: "Error interno en agregar la categoria" });
+              if (categoriaAgregada)
+                return res.status(500).send({ categoriaAgregada });
+            });
+          }
+        }
+      );
+    } else {
+      return res.status(500).send({
+        mensaje: "No contiene los campos o esta agregando campos inncesarios",
+      });
+    }
+  } else {
+    return res.status(500).send({ mensaje: "Usted no es un administrador" });
+  }
+}
+
 module.exports = {
   loginUsuarios,
   agregarProductos,
   buscarProductos,
   editarProductos,
   eliminarProductos,
+  agregarCategorias,
 };

@@ -1,11 +1,12 @@
-'use strict'
+"use strict";
 
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 var productosScheman = Schema({
-    nombre: String,
-    cantidad: Number
-})
+  nombre: String,
+  cantidad: Number,
+  categoria: { type: Schema.Types.ObjectId, ref: "categorias" },
+});
 
-module.exports = mongoose.model('productos', productosScheman);
+module.exports = mongoose.model("productos", productosScheman);
