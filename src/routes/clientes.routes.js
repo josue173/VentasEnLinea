@@ -32,7 +32,7 @@ ventas.delete(
   clientesCotroller.eliminarPerfil
 );
 ventas.post(
-  "/agregarCarrito/:clienteID",
+  "/agregarCarrito/:clienteID/:productoID",
   verification.ensureAuth,
   clientesCotroller.agregarCarrito
 );

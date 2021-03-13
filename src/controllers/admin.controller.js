@@ -354,6 +354,15 @@ function eliminarUsuarios(req, res) {
 
 //GESTION DE FACTURAS
 
+function facturas(req, res) {
+  let usuarioID = req.params.usuarioID;
+  let params = req.body;
+  if (req.usuario.rol === "Administrador") {
+  } else {
+    return res.status(500).send({ mensaje: "Usted no es administrador" });
+  }
+}
+
 module.exports = {
   loginUsuarios,
   agregarProductos,

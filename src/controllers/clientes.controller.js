@@ -4,11 +4,6 @@ const Usuarios = require("../models/usuarios.model");
 const Productos = require("../models/productos.model");
 const Categorias = require("../models/categorias.model");
 const Carrito = require("../models/carrito.model");
-const bcrypt = require("bcrypt-nodejs");
-const jwt = require("../services/jwt");
-const { registroUsuarios } = require("./admin.controller");
-const usuariosModel = new Usuarios();
-const productosModel = new Productos();
 const carritoModel = new Carrito();
 
 function productosMasVendidos(req, res) {
@@ -67,24 +62,35 @@ function productosCategoria(req, res) {
 
 function agregarCarrito(req, res) {
   let clienteID = req.params.clienteID;
+  let productoID = req.params.productoID;
   let params = req.body;
-  carritoModel.productos = params.productos;
+  let subTotal = null;
+  carritoModel.productos = productoID;
   carritoModel.cantidad = params.cantidad;
   carritoModel.cliente = clienteID;
   if (req.usuario.rol === "Administrador") {
     return res.status(500).send({ mensaje: "Usted no es un cliente" });
   } else {
-    if (params.productos && params.cantidad) {
+    if (params.cantidad) {
       carritoModel.save((err, carritoAgregado) => {
         if (err)
           return res
             .status(500)
-            .send({ mensaje: "Error interno en agregar productos" });
+            .send({ mensaje: "Error interno en agregar carrito" });
         if (!carritoAgregado) {
-          return res
-            .status(500)
-            .send({ mensaje: "Error al agregar productos" });
+          return res.status(500).send({ mensaje: "Error al agregar carrito" });
         } else {
+          Productos.findById(productoID, (err, productoEncontrado) => {
+            if (err) return res.status(500).send({ mensaje: "Error interno" });
+            if (!productoEncontrado)
+              return res
+                .status(500)
+                .send({ mensaje: "Error al buscar producto" });
+            if (productoEncontrado) {
+              subTotal = productoEncontrado.precio * params.cantidad;
+              carritoModel.subTotal = subTotal;
+            }
+          });
           return res.status(200).send({ carritoAgregado });
         }
       });
@@ -98,25 +104,18 @@ function agregarCarrito(req, res) {
 
 function compras(req, res) {
   let carritoID = req.params.carritoID;
-  let params = req.body;
   if (req.usuario.rol === "Administrador") {
     return res.status(500).send({ mensaje: "Usted no es cliente" });
   } else {
-    Carrito.findOne({ cliente: carritoID }, (err, carritoEncontrado) => {
+    Carrito.findById(carritoID, (err, carritoEncontrado) => {
       if (err) return res.status(500).send({ mensaje: "Error interno" });
       if (!carritoEncontrado)
         return res.status(500).send({ mensaje: "Error al obtener carrito" });
       if (carritoEncontrado) {
-        if (params.compras === true) {
-          return res.status(200).send({ carritoEncontrado });
-        }
       }
     });
   }
 }
-
-//ESTE LOGIN ES ESPECIAL PARA EL CLIENTE PORQUE MUESTRA LA FACTURA
-function loginCliente(params) {}
 
 function editarPerfil(req, res) {
   let clienteID = req.params.clienteID;
