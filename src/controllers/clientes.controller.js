@@ -3,10 +3,13 @@
 const Usuarios = require("../models/usuarios.model");
 const Productos = require("../models/productos.model");
 const Categorias = require("../models/categorias.model");
+const Carrito = require("../models/carrito.model");
 const bcrypt = require("bcrypt-nodejs");
 const jwt = require("../services/jwt");
+const { registroUsuarios } = require("./admin.controller");
 const usuariosModel = new Usuarios();
 const productosModel = new Productos();
+const carritoModel = new Carrito();
 
 function productosMasVendidos(req, res) {
   if (req.usuario.rol === "Cliente") {
@@ -62,9 +65,55 @@ function productosCategoria(req, res) {
     });
 }
 
-function agregarAlCarrito(req, res) {}
+function agregarCarrito(req, res) {
+  let clienteID = req.params.clienteID;
+  let params = req.body;
+  carritoModel.productos = params.productos;
+  carritoModel.cantidad = params.cantidad;
+  carritoModel.cliente = clienteID;
+  if (req.usuario.rol === "Administrador") {
+    return res.status(500).send({ mensaje: "Usted no es un cliente" });
+  } else {
+    if (params.productos && params.cantidad) {
+      carritoModel.save((err, carritoAgregado) => {
+        if (err)
+          return res
+            .status(500)
+            .send({ mensaje: "Error interno en agregar productos" });
+        if (!carritoAgregado) {
+          return res
+            .status(500)
+            .send({ mensaje: "Error al agregar productos" });
+        } else {
+          return res.status(200).send({ carritoAgregado });
+        }
+      });
+    } else {
+      return res
+        .status(500)
+        .send({ mensaje: "Debe llenar los campos de productos y cantidad" });
+    }
+  }
+}
 
-function factura(params) {}
+function compras(req, res) {
+  let carritoID = req.params.carritoID;
+  let params = req.body;
+  if (req.usuario.rol === "Administrador") {
+    return res.status(500).send({ mensaje: "Usted no es cliente" });
+  } else {
+    Carrito.findOne({ cliente: carritoID }, (err, carritoEncontrado) => {
+      if (err) return res.status(500).send({ mensaje: "Error interno" });
+      if (!carritoEncontrado)
+        return res.status(500).send({ mensaje: "Error al obtener carrito" });
+      if (carritoEncontrado) {
+        if (params.compras === true) {
+          return res.status(200).send({ carritoEncontrado });
+        }
+      }
+    });
+  }
+}
 
 //ESTE LOGIN ES ESPECIAL PARA EL CLIENTE PORQUE MUESTRA LA FACTURA
 function loginCliente(params) {}
@@ -130,4 +179,6 @@ module.exports = {
   productosCategoria,
   editarPerfil,
   eliminarPerfil,
+  agregarCarrito,
+  compras,
 };

@@ -46,9 +46,10 @@ function agregarProductos(req, res) {
   let params = req.body;
   let categoriaID = req.params.categoriaID;
   if (req.usuario.rol === "Administrador") {
-    if (params.nombre && params.cantidad) {
+    if (params.nombre && params.cantidad && params.precio) {
       productosModel.nombre = params.nombre;
       productosModel.cantidad = params.cantidad;
+      productosModel.precio = params.precio;
       productosModel.categoria = categoriaID;
       productosModel.save((err, productosAgregados) => {
         if (err)
@@ -144,20 +145,6 @@ function eliminarProductos(req, res) {
 
 //GESTION DE CATEGORIAS
 
-/*
-    categoriasModel.save((err, categoriaAgregada) => {
-      if (err)
-        return res.status(500).send({ mensaje: "Error interno al guardar" });
-      if (!categoriaAgregada)
-        return res
-          .status(500)
-          .send({ mensaje: "No hay informacion para guardar" });
-      return res.status(200).send({ categoriaAgregada });
-    });
-  } else {
-    return res.status(500).send({ mensaje: "Usted no es administrador" });
-  }*/
-
 function agregarCategorias(req, res) {
   let params = req.body;
   if (req.usuario.rol === "Administrador") {
@@ -182,25 +169,6 @@ function agregarCategorias(req, res) {
         }
       }
     );
-  }
-}
-
-function agregarCategorias2(req, res) {
-  var params = req.body;
-  if (req.usuario.rol !== "Administrador") {
-    res.status(500).send({ mensaje: "Usted no es administrador" });
-  } else if (params.nombre) {
-    categoriasModel.nombre = params.nombre;
-    categoriasModel.save((err, categoriaAgregada) => {
-      if (err) return res.status(500).send({ mensaje: "Error interno" });
-      if (!categoriaAgregada) {
-        return res.status(500).send({ mensaje: "Error al agregar categoria" });
-      } else {
-        return res.status(200).send({ categoriaAgregada });
-      }
-    });
-  } else {
-    return res.status(500).send({ mensaje: "Llene todos los campos" });
   }
 }
 
@@ -385,8 +353,6 @@ function eliminarUsuarios(req, res) {
 }
 
 //GESTION DE FACTURAS
-
-function facturas(params) {}
 
 module.exports = {
   loginUsuarios,

@@ -1,12 +1,22 @@
-'use strict'
+"use strict";
 
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
-var admiSchema = Schema({
-    usuario: String,
-    contrasena: String,
-    rol: String
-})
+var usuariosSchema = Schema({
+  usuario: String,
+  contrasena: String,
+  rol: String,
+});
 
-module.exports = mongoose.model('usuarios', admiSchema)
+module.exports = mongoose.model("usuarios", usuariosSchema);
+
+/*
+  carrito: [
+    {
+      productos: [],
+      cantidad: Number,
+      IDcliente: { type: Schema.Types.ObjectId, ref: "Usuarios" },
+    },
+  ],
+*/

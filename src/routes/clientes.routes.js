@@ -31,4 +31,14 @@ ventas.delete(
   verification.ensureAuth,
   clientesCotroller.eliminarPerfil
 );
+ventas.post(
+  "/agregarCarrito/:clienteID",
+  verification.ensureAuth,
+  clientesCotroller.agregarCarrito
+);
+ventas.post(
+  "/comprar/:carritoID",
+  verification.ensureAuth,
+  clientesCotroller.compras
+);
 module.exports = ventas;
